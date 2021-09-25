@@ -1,10 +1,11 @@
 import { Box, Slider } from '@mui/material';
 import { styled, useTheme } from '@mui/material/styles';
+import {useState} from "react";
 
 const AudioEmergencyComponent = () => {
     const theme = useTheme();
     const duration = 200;
-    const [position, setPosition] = React.useState(32);
+    const [position, setPosition] = useState(32);
 
     return (
         <div className="wrapper">
@@ -16,7 +17,7 @@ const AudioEmergencyComponent = () => {
                 min={0}
                 step={1}
                 max={duration}
-                onChange={(_, value) => setPosition(value)}
+                // onChange={(_, value) => setPosition(value)}
                 sx={{
                     color: theme.palette.mode === 'dark' ? '#fff' : 'rgba(0,0,0,0.87)',
                     height: 4,
