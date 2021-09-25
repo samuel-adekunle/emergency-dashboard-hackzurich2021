@@ -4,7 +4,11 @@ import { Card, CardContent, CardHeader,
 import IconButton from '@mui/material/IconButton';
 import { Add, Clear } from "@mui/icons-material";
 
-const EmergencyContactComponent = ({ emergencyContacts }) => {
+interface EmergencyContactComponentProps {
+    emergencyContacts: any
+}
+
+const EmergencyContactComponent = ({ emergencyContacts }: EmergencyContactComponentProps) => {
     return (
         <div className="wrapper" style={{ padding: '10px 30px', width: '100%', height: '100%' }}>
             <Card variant="outlined" sx={{ minHeight: '380px' }}>
