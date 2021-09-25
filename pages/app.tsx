@@ -4,6 +4,8 @@ import { getAuth, isSignInWithEmailLink, signInWithEmailLink } from "firebase/au
 import { useEffect, useState } from 'react';
 import { PulseLoader } from 'react-spinners';
 import { Box } from '@mui/system';
+import Head from "next/head";
+import Constants from "../lib/constants";
 
 interface LoaderProps {
     loading: boolean
@@ -45,6 +47,13 @@ const App: NextPage = () => {
 
     return (
         <>
+            <Head>
+                <title>Dashboard - {Constants.projectName}</title>
+                <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+                <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+                <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+                <link rel="manifest" href="/site.webmanifest" />
+            </Head>
             <Loader loading={loading} />
             <Box sx={{
                 display: loading ? "none" : "block"
