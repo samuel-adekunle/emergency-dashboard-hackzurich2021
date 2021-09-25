@@ -53,6 +53,12 @@ const App: NextPage = () => {
         }
     }, [router, auth])
 
+    useEffect(() => {
+        if (!loading) {
+            router.replace("/app", undefined, { shallow: true })
+        }
+    }, [router, loading])
+
     return (
         <>
             <Head>
