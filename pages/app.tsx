@@ -23,11 +23,11 @@ const Loader = ({ loading }: LoaderProps) => {
 }
 
 const App: NextPage = () => {
+    const auth = getAuth();
 
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const auth = getAuth();
         if (isSignInWithEmailLink(auth, window.location.href)) {
             let email = window.localStorage.getItem('emailForSignIn');
             if (!email) {
@@ -58,7 +58,7 @@ const App: NextPage = () => {
             <Box sx={{
                 display: loading ? "none" : "block"
             }}>
-                <Typography>Coming Soon...</Typography>
+                <Typography>User Unique Identifier: {auth.currentUser?.uid}</Typography>
             </Box>
         </>
     )
