@@ -64,6 +64,7 @@ const Home: NextPage = () => {
                 const actionCodeSettings = getActionCodeSettings(document);
                 sendSignInLinkToEmail(auth, email, actionCodeSettings)
                   .then(() => {
+                    window.localStorage.setItem('emailForSignIn', email);
                     setSubmitted(true)
                   })
                   .catch((error) => {
