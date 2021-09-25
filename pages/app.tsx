@@ -6,6 +6,7 @@ import { PulseLoader } from 'react-spinners';
 import { Box } from '@mui/system';
 import Head from "next/head";
 import Constants from "../lib/constants";
+import { useRouter } from 'next/dist/client/router';
 
 interface LoaderProps {
     loading: boolean
@@ -24,6 +25,7 @@ const Loader = ({ loading }: LoaderProps) => {
 
 const App: NextPage = () => {
     const auth = getAuth();
+    const router = useRouter();
 
     const [loading, setLoading] = useState(true);
 
@@ -40,10 +42,16 @@ const App: NextPage = () => {
                 })
                 .catch((error) => {
                     console.error(error)
-                    window.alert("Something went wrong")
+                    window.alert("Something went wrong, please try signing in again in a few minutes")
+                    router.replace("/")
                 });
+        } else if (auth.currentUser) {
+            setLoading(false)
+        } else {
+            window.alert("You need to sign in to access this page")
+            router.replace("/")
         }
-    }, [])
+    }, [router, auth])
 
     return (
         <>
