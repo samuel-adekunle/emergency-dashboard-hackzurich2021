@@ -4,8 +4,14 @@ import { Card, CardContent, CardHeader,
 import IconButton from '@mui/material/IconButton';
 import { Add, Clear } from "@mui/icons-material";
 
+export interface EmergencyContact {
+    firstName: string
+    lastName: string
+    emailAddress: string
+}
+
 interface EmergencyContactComponentProps {
-    emergencyContacts: any
+    emergencyContacts?: [EmergencyContact] 
 }
 
 const EmergencyContactComponent = ({ emergencyContacts }: EmergencyContactComponentProps) => {
@@ -24,45 +30,20 @@ const EmergencyContactComponent = ({ emergencyContacts }: EmergencyContactCompon
 
                 <CardContent>
                     <List sx={{ padding: '5px'}}>
-                        <ListItem>
+                        {emergencyContacts?.map(({firstName, lastName, emailAddress}) => 
+                        <ListItem key={emailAddress}>
                             <ListItemAvatar>
                                 <Avatar>
                                 </Avatar>
                             </ListItemAvatar>
                             <ListItemText
-                                primary="Contact Number 1"
-                                secondary="contact1@placeholder.com"
+                                primary={`${firstName} ${lastName}`}
+                                secondary={emailAddress}
                             />
                             <IconButton aria-label="settings">
                                 <Clear />
                             </IconButton>
-                        </ListItem>
-                        <ListItem>
-                            <ListItemAvatar>
-                                <Avatar>
-                                </Avatar>
-                            </ListItemAvatar>
-                            <ListItemText
-                                primary="Contact Number 2"
-                                secondary="contact2@placeholder.com"
-                            />
-                            <IconButton aria-label="settings">
-                                <Clear />
-                            </IconButton>
-                        </ListItem>
-                        <ListItem>
-                            <ListItemAvatar>
-                                <Avatar>
-                                </Avatar>
-                            </ListItemAvatar>
-                            <ListItemText
-                                primary="Contact Number 3"
-                                secondary="contact3@placeholder.com"
-                            />
-                            <IconButton aria-label="settings">
-                                <Clear />
-                            </IconButton>
-                        </ListItem>
+                        </ListItem>)}
                     </List>
                 </CardContent>
             </Card>

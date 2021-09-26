@@ -1,51 +1,79 @@
-import { Box, Slider } from '@mui/material';
-import { styled, useTheme } from '@mui/material/styles';
+import { Box, Grid, IconButton, Stack, Divider } from '@mui/material';
 import {useState} from "react";
+import { styled, useTheme } from '@mui/material/styles';
+import Typography from '@mui/material/Typography';
 
-const AudioEmergencyComponent = () => {
+// import useAudioPlayer from './useAudioPlayer';
+// import Play from "./Play";
+// import Pause from "./Pause";
+// // import Bar from "./Bar";
+
+
+export interface AudioEmergency {
+    transcribedText: string
+    urlLink: string
+    timeStamp: string
+}
+
+interface AudioEmergencyComponentProps {
+    audioEmergencies?: [AudioEmergency]
+}
+
+const AudioEmergencyComponent = ({ audioEmergencies }: AudioEmergencyComponentProps) => {
+
+    // const { curTime, duration, playing, setPlaying, setClickedTime } = useAudioPlayer();
     const theme = useTheme();
-    const duration = 200;
-    const [position, setPosition] = useState(32);
+    const mainIconColor = theme.palette.mode === 'dark' ? '#fff' : '#000';
 
     return (
-        <div className="wrapper">
-            <Box sx={{ width: '100%', overflow: 'hidden' }}>
-            <Slider
-                aria-label="time-indicator"
-                size="small"
-                value={position}
-                min={0}
-                step={1}
-                max={duration}
-                // onChange={(_, value) => setPosition(value)}
-                sx={{
-                    color: theme.palette.mode === 'dark' ? '#fff' : 'rgba(0,0,0,0.87)',
-                    height: 4,
-                    '& .MuiSlider-thumb': {
-                    width: 8,
-                    height: 8,
-                    transition: '0.3s cubic-bezier(.47,1.64,.41,.8)',
-                    '&:before': {
-                        boxShadow: '0 2px 12px 0 rgba(0,0,0,0.4)',
-                    },
-                    '&:hover, &.Mui-focusVisible': {
-                        boxShadow: `0px 0px 0px 8px ${
-                        theme.palette.mode === 'dark'
-                            ? 'rgb(255 255 255 / 16%)'
-                            : 'rgb(0 0 0 / 16%)'
-                        }`,
-                    },
-                    '&.Mui-active': {
-                        width: 20,
-                        height: 20,
-                    },
-                    },
-                    '& .MuiSlider-rail': {
-                    opacity: 0.28,
-                    },
-                }}
-                />
-            </Box>
+        <div className="wrapper" style={{ padding: '20px 15px'}}>
+            {audioEmergencies?.map(({ transcribedText, urlLink, timeStamp }) =>
+                <Grid container spacing={2}>
+                    <Grid item xs={6}>
+                        <Stack>
+                            <Typography variant="subtitle1"
+                                sx={{ padding: '15px'}}>
+                                <span style={{ fontWeight: 500 }}>Timestamp:</span> {timeStamp}<br  />
+                                <span style={{ fontWeight: 500 }}>Transcription:</span> {transcribedText}
+                            </Typography>
+                            
+                        </Stack> 
+                    </Grid>
+                    <Grid item xs={6} sx={{ position: 'relative' }}> 
+                        <Stack direction="row" spacing={2} 
+                            sx={{ 
+                                    position: 'absolute', 
+                                    bottom: 0, 
+                                    right: '10px',
+                                    width: '300px',
+                                    
+                                }}>
+                            
+                            <div className="controls">
+                                {/* {playing ? 
+                                <Pause handleClick={() => setPlaying(false)}
+                                    sx={{ fontSize: '1.5rem' }}
+                                    htmlColor={mainIconColor}
+                                /> :
+                                <Play handleClick={() => setPlaying(true)} 
+                                    sx={{ fontSize: '1.5rem' }} htmlColor={mainIconColor} />
+                                } */}
+                                {/* <Bar curTime={curTime} duration={duration} onTimeUpdate={(time) => setClickedTime(time)}/> */}
+                            </div>
+                            <Box sx={{ width: '100%', overflow: 'hidden', margin: 0 }}>
+                                <audio 
+                                    id= "audio"
+                                    controls
+                                    style={{ marginRight: '10px' }} 
+                                    >
+                                        <source src={urlLink} /> 
+                                    </audio>
+                            </Box>
+                        </Stack>
+                        
+                    </Grid>
+                </Grid>
+            )}
         </div>
     );
 }

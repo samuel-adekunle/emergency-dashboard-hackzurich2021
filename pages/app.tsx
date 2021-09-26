@@ -2,18 +2,20 @@ import { Grid, Typography, Stack, Card, CardContent,
          CardHeader, Divider } from '@mui/material'
 import type { NextPage } from 'next'
 import { getAuth, isSignInWithEmailLink, signInWithEmailLink, getAdditionalUserInfo } from "firebase/auth";
-import { getDatabase, set, ref, onValue, child, get } from "firebase/database";
+import { getDatabase, set, update, ref, onValue, child, get } from "firebase/database";
 import { useEffect, useState } from 'react';
 import { PulseLoader } from 'react-spinners';
 import { Box } from '@mui/system';
 import Head from "next/head";
 import Constants from "../lib/constants";
 import { useRouter } from 'next/router';
-import EmergencyContactComponent from "../components/EmergencyContactComponent";
+import EmergencyContactComponent, {EmergencyContact} from "../components/EmergencyContactComponent";
+import AudioEmergencyComponent, {AudioEmergency} from "../components/AudioEmergencyComponent";
+import VideoEmergencyComponent, {VideoEmergency} from "../components/VideoEmergencyComponent";
 import NavigationBar from "../components/navigationBar";
 import UserInfoComponent from "../components/UserInfoComponent";
-import AudioEmergencyComponent from "../components/AudioEmergencyComponent";
-import VideoEmergencyComponent from "../components/VideoEmergencyComponent"
+import { ref as ref_storage } from "firebase/storage";
+import { getStorage, getDownloadURL } from "firebase/storage";
 // import TimeSeriesComponent from '../components/TimeSeriesComponent';
 
 interface LoaderProps {
@@ -35,10 +37,14 @@ const App: NextPage = () => {
     const auth = getAuth();
     const router = useRouter();
     const db = getDatabase();
+    const storage = getStorage();
 
     const [loading, setLoading] = useState(true);
 
-    const [emergencyContacts, setEmergencyContacts] = useState([]);
+    const [emergencyContacts, setEmergencyContacts] = useState<[EmergencyContact]>();
+    const [audioEmergencies, setAudioEmergencies] = useState<[AudioEmergency]>();
+    const [videoEmergencies, setVideoEmergencies] = useState<[VideoEmergency]>();
+    
 
     useEffect(() => {
         if (isSignInWithEmailLink(auth, window.location.href)) {
@@ -51,11 +57,16 @@ const App: NextPage = () => {
                     window.localStorage.removeItem('emailForSignIn');
                     const additionalInfo = getAdditionalUserInfo(result)
                     if (additionalInfo?.isNewUser) {
-                        set(ref(db, "users/"), {
+                        update(ref(db, "users/"), {
                             [result.user.uid]: {
                                 "identity": {
                                     "emailAddress": result.user.email
-                                }
+                                },
+                                "emergencyContacts" : [{
+                                    "firstName": " ",
+                                    "lastName": " ",
+                                    "emailAddress": result.user.email
+                                }]
                             }
                         })
                             .catch((error) => console.error(error))
@@ -65,13 +76,13 @@ const App: NextPage = () => {
                 .catch((error) => {
                     console.error(error)
                     window.alert("Something went wrong, please try signing in again in a few minutes")
-                    router.replace("/")
+                    // router.replace("/")
                 });
         } else if (auth.currentUser) {
             setLoading(false)
         } else {
             window.alert("You need to sign in to access this page")
-            router.replace("/")
+            // router.replace("/")
         }
     }, [])
 
@@ -79,22 +90,40 @@ const App: NextPage = () => {
         if (!loading) {
             const emergencyContactsRef = ref(db, `users/${auth.currentUser?.uid}/emergencyContacts`);
             onValue(emergencyContactsRef, (snapshot) => {
-               console.log(snapshot.val())
                setEmergencyContacts(snapshot.val());
             })
 
-            //const dbRef = ref(db);
-            //get(child(dbRef, `users/${auth.currentUser?.uid}/emergencyContacts`)).then((snapshot) => {
-            //   if (snapshot.exists()) {
-            //        console.log(snapshot.val());
-            //      } else {
-            //        console.log("No data available");
-            //      }
-            //}).catch((error) => {
-            //    console.error("ERROR:" + error);
-            //});
-            
-            router.replace("/app", undefined, { shallow: true })
+            var _audioEmergencies: AudioEmergency[] = [];
+            var _videoEmergencies: VideoEmergency[] = [];
+
+            // Fetch emergencies
+            const ref2 = ref(db, `users/${auth.currentUser?.uid}/emergencies`);
+            onValue(ref2, (snapshot) => {
+                snapshot.forEach(item => {
+                    const emergencyItem = item.val();
+
+                    getDownloadURL(ref_storage(storage, emergencyItem.resourceBucketLocation)).then((url) => {
+                        if (emergencyItem.type == "audio") {
+                            _audioEmergencies.push({
+                                "transcribedText": emergencyItem.audioTranscript,
+                                "urlLink": url,
+                                "timeStamp": emergencyItem.timestamp
+                            });
+                        } else {
+                            _videoEmergencies.push({
+                                "urlLink": url,
+                                "timeStamp": emergencyItem.timestamp
+                            });
+                        }
+                    });
+                });
+            });
+
+            // Pass arrays
+            setAudioEmergencies(_audioEmergencies);
+            setVideoEmergencies(_videoEmergencies);
+
+            // router.replace("/app", undefined, { shallow: true });
         }
     }, [loading])
 
@@ -124,11 +153,21 @@ const App: NextPage = () => {
                             <Divider variant="middle" />
                                 <CardContent sx={{ flex: '1 0 auto' }}>
                                     {/* Emergencies */}
-                                    {/* Audio */}
-                                    {/* <AudioEmergencyComponent/> */}
 
+                                    {console.log("checking for video and audio...")}
+                                    {console.log(audioEmergencies)}
+                                    {console.log(videoEmergencies)}
+                      
+                                    {/* Audio */}
+                                    <AudioEmergencyComponent
+                                        audioEmergencies={audioEmergencies}
+                                    /> 
+ 
                                     {/* Video */}
-                                    <VideoEmergencyComponent/>
+                                    <VideoEmergencyComponent
+                                        videoEmergencies={videoEmergencies}
+                                    />
+                                          
                                 </CardContent>
                             </Card>
                         </div>
@@ -141,6 +180,8 @@ const App: NextPage = () => {
                             >
                             <UserInfoComponent/>
                             {/* Emergency Contacts */}
+                            {console.log("emergency contacts")}
+                            {console.log(emergencyContacts)}
                             <EmergencyContactComponent 
                                 emergencyContacts={emergencyContacts} 
                             />
