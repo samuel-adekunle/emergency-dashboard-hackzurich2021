@@ -76,13 +76,13 @@ const App: NextPage = () => {
                 .catch((error) => {
                     console.error(error)
                     window.alert("Something went wrong, please try signing in again in a few minutes")
-                    // router.replace("/")
+                    router.replace("/")
                 });
         } else if (auth.currentUser) {
             setLoading(false)
         } else {
             window.alert("You need to sign in to access this page")
-            // router.replace("/")
+            router.replace("/")
         }
     }, [])
 
@@ -123,7 +123,7 @@ const App: NextPage = () => {
             setAudioEmergencies(_audioEmergencies);
             setVideoEmergencies(_videoEmergencies);
 
-            // router.replace("/app", undefined, { shallow: true });
+            router.replace("/app", undefined, { shallow: true });
         }
     }, [loading])
 
